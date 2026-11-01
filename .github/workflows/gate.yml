@@ -1,0 +1,68 @@
+name: gate
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      # 1. 脱敏门。
+      #    注意：仓库里没有 leaks.local（它逐字写着被禁字符串），所以这里只跑
+      #    base 12 条通用规则（家目录形状 / 内网 IP / token 前缀）。
+      #    本机身份那 5 类要靠维护者本地带 --local 跑，CI 抓不到。
+      - name: leak gate (base rules)
+        run: |
+          bash scripts/check-leaks.sh --root . | tee /tmp/gate.txt
+          grep -q '^TOTAL: 0$' /tmp/gate.txt || { echo "::error::脱敏门未通过"; exit 1; }
+
+      # 2. 上下文预算。改 protocol/ 的人必须看到这个数。
+      #    超了 32,768 B 就是 Codex 会静默截断的量。
+      - name: context budget
+        run: python scripts/budget.py
+
+      # 3. protocol 账本：字节 / 行数 / `> EN:` / source 指纹 / 链接 / 400 行预算。
+      #    改 protocol/ 或 manifest.tsv 的任何一边，这里都会红。
+      - name: protocol manifest
+        run: python scripts/check-protocol.py
+
+      # 4. 站内链接。
+      - name: relative links
+        run: |
+          python - <<'PY'
+          import re, pathlib, sys
+          root = pathlib.Path('.')
+          bad = []
+          n = 0
+          for f in root.rglob('*.md'):
+              if '.git' in f.parts:
+                  continue
+              t = f.read_text(encoding='utf-8', errors='replace')
+              t = re.sub(r'```.*?```', '', t, flags=re.S)
+              t = re.sub(r'`[^`\n]*`', '', t)
+              for m in re.finditer(r'(?<!!)\[[^\]]*\]\(([^)]+)\)', t):
+                  u = m.group(1).split('#')[0].strip()
+                  if not u or u.startswith(('http', 'mailto', '#')):
+                      continue
+                  n += 1
+                  if not (f.parent / u).resolve().exists():
+                      bad.append(f'{f} -> {u}')
+          print(f'checked {n} links, broken {len(bad)}')
+          for b in bad[:20]:
+              print('  ', b)
+          sys.exit(1 if bad else 0)
+          PY
+
+      # 5. 脚本语法。
+      - name: shell syntax
+        run: for f in $(find . -name '*.sh'); do bash -n "$f" || exit 1; done

@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 先读 60 秒判断
+    url: https://github.com/dwgx/AgentRule/blob/main/docs/60s.md
+    about: 不装任何东西，读完这页知道自己要不要继续。
+  - name: 已知缺口清单
+    url: https://github.com/dwgx/AgentRule/blob/main/docs/known-gaps.md
+    about: 15 条已经写下来的缺口，包括「三家 harness 都没有端到端验收」。开 issue 前先看这里。

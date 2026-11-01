@@ -1,0 +1,24 @@
+# 行尾统一：仓库里存 LF，检出时按平台转。
+#
+# 为什么需要这个文件：本机 `core.autocrlf = true`。没有 .gitattributes 时，
+# 任何人 clone 都会把 `*.sh` 转成 CRLF —— shebang 变成 `#!/usr/bin/env bash\r`，
+# bash 找不到解释器，脚本直接报 `bad interpreter: No such file or directory`。
+# 这类错误在 Windows 上跑 Git Bash 的用户身上 100% 复现，且报错完全不提行尾。
+
+# 所有文本文件默认 LF，提交时归一化
+* text=auto eol=lf
+
+# shell 脚本必须是 LF —— CRLF 会让 shebang 失效
+*.sh text eol=lf
+
+# PowerShell 脚本要 CRLF —— 虽然 PS 5.1 也吃 LF，但 `#requires` 与部分
+# 多行字符串在 LF 下行为不一致；且 Windows 编辑器默认 CRLF。
+*.ps1 text eol=crlf
+
+# 文档统一 LF（GitHub 渲染与 diff 都更干净）
+*.md text eol=lf
+
+# 二进制，不要碰
+*.png binary
+*.jpg binary
+*.ico binary

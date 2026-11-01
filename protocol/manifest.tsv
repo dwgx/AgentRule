@@ -1,0 +1,7 @@
+file	id	version	bytes	lines	depends_on	summary
+protocol/00-floor.md	floor	1	2996	32	-	十条硬地板；违反任一条，这一轮停下改做法
+protocol/01-status.md	status	1	2763	50	floor	交活首行只写 STATUS: DONE 或 STATUS: BLOCKED，以及 DONE 的前提
+protocol/02-dispatch.md	dispatch	1	5314	88	floor,status	开卡、写 brief、过检查、派、收卡五个动作与证据要求
+protocol/03-gates.md	gates	1	5769	80	floor	门的四要素、最小伪码与负控；判据可判与不可判的边界
+protocol/04-recovery.md	recovery	1	2990	55	dispatch,status	压缩或重启后怎么接：一句话复述、核板、只补一个缺口
+protocol/05-memory.md	memory	1	2389	37	dispatch	记忆给启发、盘上给事实；改共享文件的五步
