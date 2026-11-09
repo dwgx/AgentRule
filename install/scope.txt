@@ -1,0 +1,85 @@
+# AgentRule 安装范围清单 —— 安装器只复制这里列出的文件。
+#
+# 不在清单里的文件（本地笔记、未跟踪草稿、.env、日志、临时产物）安装器一律不读、不复制。
+# 这是 allowlist：清单缺失 / 为空 / 条目指向不存在的文件时，安装器退 4，
+# 不退回「整棵树都装」的旧行为 —— 静默装多了比装不起来更贵。
+#
+# 生成: python scripts/gen-scope.py --write
+# 校验: python scripts/gen-scope.py --check   （assemble.sh 与 CI 都跑这一条）
+# 格式: 一行一个相对路径，'/' 分隔，相对发布树根；# 开头是注释；空行忽略。
+.gitattributes
+.github/ISSUE_TEMPLATE/1-rule-proposal.yml
+.github/ISSUE_TEMPLATE/2-install-bug.yml
+.github/ISSUE_TEMPLATE/config.yml
+.github/pull_request_template.md
+.github/workflows/gate.yml
+.gitignore
+AGENTS.md
+CHANGELOG.md
+CONTRIBUTING.md
+LICENSE
+LICENSE-docs
+README.en.md
+README.md
+SECURITY.md
+adapters/README.md
+adapters/claude-code.md
+adapters/codex.md
+adapters/matrix.md
+adapters/omp.md
+docs/60s.en.md
+docs/60s.md
+docs/case-studies.md
+docs/evidence/behavior-ab.md
+docs/known-gaps.md
+docs/tutorial-zh.md
+examples/brief.md
+examples/machine.md
+gates/README.md
+gates/fixtures.tsv
+gates/reference.py
+gates/run.py
+gates/scope_test.py
+install/ASK.md
+install/BOOTSTRAP.md
+install/INSTALL.md
+install/PROTOCOL.md
+install/UNINSTALL.md
+install/UPGRADE.md
+install/install.ps1
+install/install.sh
+install/scope.txt
+install/verify.ps1
+install/verify.sh
+library/README.md
+library/dispatch/cards.md
+library/dispatch/dispatch.md
+library/dispatch/reply-shape.md
+library/dispatch/writing-for-agents.md
+library/floor/hard-floor.md
+library/floor/incidents.md
+library/recovery/recovery.md
+library/recovery/retro.md
+library/recovery/work.md
+library/specialist/README.md
+library/specialist/reverse-station.md
+library/tooling/archaeology.md
+library/tooling/browser.md
+library/tooling/knowledge.md
+library/tooling/research.md
+library/tooling/skills.md
+library/tooling/tools.md
+protocol/00-floor.en.md
+protocol/00-floor.md
+protocol/01-status.md
+protocol/02-dispatch.md
+protocol/03-gates.md
+protocol/04-recovery.md
+protocol/05-memory.md
+protocol/README.md
+protocol/manifest.tsv
+scripts/budget.py
+scripts/check-leaks.sh
+scripts/check-protocol.py
+scripts/gen-scope.py
+scripts/stats.py

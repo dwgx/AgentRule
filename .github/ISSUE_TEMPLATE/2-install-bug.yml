@@ -1,0 +1,83 @@
+name: 安装故障
+description: 装不上、装完不生效、卸载不干净。贴 VERDICT 行，不要贴截图。
+title: "[install] "
+labels: ["install"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        先跑一遍诊断，把输出贴进来：
+
+        ```bash
+        bash install/verify.sh --harness <你的> --target "$HOME"
+        ```
+
+        或者 Windows：
+
+        ```powershell
+        powershell -NoProfile -ExecutionPolicy Bypass -File install\verify.ps1 --harness <你的> --target "$env:USERPROFILE"
+        ```
+
+        **没有 `[summary]` 和 `VERDICT:` 行的报告会被要求补。**
+
+  - type: dropdown
+    id: harness
+    attributes:
+      label: 哪套 harness
+      options:
+        - omp
+        - Codex
+        - Claude Code
+        - 其他
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: harness 版本
+      description: 跑 `<cli> --version`，贴原样输出。版本会自更新，不写版本没法复现。
+      placeholder: "codex 0.165.0"
+    validations:
+      required: true
+
+  - type: input
+    id: os
+    attributes:
+      label: 系统与 shell
+      placeholder: "Windows 10.0.26300 / Git Bash；或 macOS 15.1 / zsh"
+    validations:
+      required: true
+
+  - type: input
+    id: command
+    attributes:
+      label: 你跑的那条命令
+      description: 原样贴，包括所有参数。
+      placeholder: "bash install/install.sh --harness omp --source . --target $HOME"
+    validations:
+      required: true
+
+  - type: textarea
+    id: output
+    attributes:
+      label: 输出（原样，不要截断）
+      description: 从第一行到退出码。至少包含 `[summary]` 和 `VERDICT:` 两行。
+      render: text
+    validations:
+      required: true
+
+  - type: input
+    id: expected
+    attributes:
+      label: 你期望发生什么
+    validations:
+      required: true
+
+  - type: textarea
+    id: tried
+    attributes:
+      label: 试过什么
+      description: 包括读过的文档、跑过的 `--dry-run`、看过的备份目录。
+    validations:
+      required: false

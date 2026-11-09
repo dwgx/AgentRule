@@ -1,0 +1,83 @@
+name: 规则提案
+description: 提一条新规则，或改一条已有规则。没有失败证据的提案会被关掉。
+title: "[rule] "
+labels: ["rule-proposal"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **先读 [`CONTRIBUTING.md`](../blob/main/CONTRIBUTING.md)。** 这个仓库不收没有失败证据的「最佳实践」。
+
+        一条规则要被接受，必须能回答下面全部七项。答不出就别提。
+
+  - type: textarea
+    id: incident
+    attributes:
+      label: 事故 / 失败证据
+      description: 真实发生过什么？贴命令与输出，或链接已有的事故档案。
+      placeholder: |
+        $ 某条命令
+        输出...
+        → 代价：删了 16.4 GB，没有第二份
+    validations:
+      required: true
+
+  - type: textarea
+    id: rule
+    attributes:
+      label: 规则正文
+      description: 一句话，祈使句。不要写「应该注意」这类不能判的话。
+      placeholder: "删除先算代价。临时目录之外不做递归强删；删源之前先记副本位置和 sha256。"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: layer
+    attributes:
+      label: 放哪一层
+      description: 放错层比写错话更难修。protocol/ 每多一行所有人都要付 token。
+      options:
+        - "protocol/ — 换 harness 也不变的判据"
+        - "adapters/ — 单家 harness 的差异"
+        - "library/ — 来历、事故档案、操作手册（不预载）"
+        - "docs/ — 人读的教程与案例"
+    validations:
+      required: true
+
+  - type: input
+    id: check
+    attributes:
+      label: 怎么判它被违反
+      description: 一条能跑的检查，或写「判断规则」。
+      placeholder: "grep -c 'rm -rf' 日志；或：判断规则，靠人复核"
+    validations:
+      required: true
+
+  - type: input
+    id: delete-clause
+    attributes:
+      label: 删条
+      description: 什么条件下可以删掉这条规则？没有删条的规则只增不减，计数必然分叉。
+      placeholder: "删条: 该事故有回归测试或门之后"
+    validations:
+      required: true
+
+  - type: input
+    id: token-cost
+    attributes:
+      label: token 成本
+      description: 常驻多少行/字节？只进 library 的写「不预载」。
+      placeholder: "常驻 2 行 / 约 90 B"
+    validations:
+      required: true
+
+  - type: textarea
+    id: dedupe
+    attributes:
+      label: 去重
+      description: 先 grep 现有规则。如果已经有类似的，说清这条是改现有还是新增。
+      placeholder: |
+        $ grep -rn '递归强删' protocol/ library/
+        → 命中 protocol/00-floor.md:12，本提案是改它，不是新增
+    validations:
+      required: true

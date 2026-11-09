@@ -1,0 +1,27 @@
+# 门夹具集：20 条，3 道门。列用 TAB 分隔，`#` 开头是注释。
+# id<TAB>gate<TAB>expect<TAB>payload<TAB>why
+# expect 只有 ALLOW / DENY 两个值。payload 按门分三种：
+#   recursive-delete   -> 一条 shell 命令串
+#   unexpanded-temp-var -> 一个写入目标路径
+#   ai-attribution     -> 一条 commit 信息；`<NL>` 表示换行
+# why 前缀 floor#N 指 ../protocol/00-floor.md 的第 N 条。
+rd-01	recursive-delete	ALLOW	rm -rf /tmp/build	floor#2 放行侧：目标在 /tmp 下，递归+强制都成立也不拦
+rd-02	recursive-delete	DENY	rm -rf /home/u/project/dist	floor#2 典型命中：temp 之外的递归强删
+rd-03	recursive-delete	DENY	rm -rf "/tmp/../home/u/data"	floor#2 边界：先归一化再比前缀，"/tmp/.." 不是字符串前缀匹配
+rd-04	recursive-delete	DENY	rm -rf build/	floor#2 边界：相对路径解析不出绝对目标，门看不到 cwd，所以拦
+rd-05	recursive-delete	DENY	Remove-Item -Recurse -Force C:\work\out	floor#2 方言：PowerShell 别名 + -Recurse -Force
+rd-06	recursive-delete	DENY	python -c "import shutil; shutil.rmtree('C:/work/dist')"	floor#2 方言：脚本体里的 shutil.rmtree，命令词是 python
+rd-07	recursive-delete	ALLOW	echo "rm -rf /"	floor#2 误报控制：引号里的 rm -rf 不是命令词，不该拦
+rd-08	recursive-delete	DENY	rm -rf /tmp/a /home/u/b	floor#2 混合目标：一个目标在 temp 内不算数，逐目标判
+rd-09	recursive-delete	DENY	rd /s /q C:\work\out	floor#2 方言：cmd.exe 的 rd /s /q
+ut-01	unexpanded-temp-var	ALLOW	C:\work\out.txt	floor#3 放行侧：普通工作路径，没有变量
+ut-02	unexpanded-temp-var	ALLOW	C:\Users\me\AppData\Local\Temp\out.txt	floor#3 放行侧：已经是展开后的绝对 temp 路径
+ut-03	unexpanded-temp-var	DENY	%TEMP%\out.txt	floor#3 典型命中：写入目标带字面 %TEMP%
+ut-04	unexpanded-temp-var	DENY	C:\cache\%tmp%\x.log	floor#3 边界：大小写不敏感，且出现在路径中段而不只是开头
+ut-05	unexpanded-temp-var	DENY	%TMPDIR%/build	floor#3 典型命中：%TMPDIR% 是三个登记名里的第三个
+ut-06	unexpanded-temp-var	ALLOW	C:\work\%TEMPDIR%\x	floor#3 边界：%TEMPDIR% 未登记 -> 放行，判据是精确名单不是「任何 %VAR%」
+ai-01	ai-attribution	ALLOW	fix: drop stale cache	floor#5 放行侧：普通提交信息，没有署名
+ai-02	ai-attribution	DENY	fix: drop stale cache<NL>Co-Authored-By: Claude <noreply@anthropic.com>	floor#5 典型命中：trailer 指向模型 + 工具邮箱域
+ai-03	ai-attribution	DENY	feat: add gate<NL>Generated with Claude Code	floor#5 典型命中：横幅形态，没有 trailer 也算
+ai-04	ai-attribution	ALLOW	docs: commit messages must not carry AI attribution<NL>Signed-off-by: Jane Doe <jane@example.com>	floor#5 误报控制：正文提到「AI 署名」+ 人类 Signed-off-by，都不该拦
+ai-05	ai-attribution	ALLOW	refactor: split judge<NL>Co-Authored-By: Jane Doe <jane@example.com>	floor#5 边界：人类 Co-Authored-By 不在工具名单上 -> 放行
